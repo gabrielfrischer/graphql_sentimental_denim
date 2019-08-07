@@ -6,8 +6,8 @@
     "@material-ui/core": "^4.3.0",
     "babel-plugin-graphql-js-client-transform": "^1.1.0",
     "graphql-js-client": "^0.6.2",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
+    "react": "latest",
+    "react-dom": "latest",
     "react-router-dom": "^5.0.1"
   },
   "devDependencies": {
