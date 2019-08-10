@@ -148,6 +148,7 @@ h2 {
  * ============================== */
 .Cart {
   position: fixed;
+  z-index: 9999;
   top: 0;
   right: 0;
   height: 100%;
@@ -164,8 +165,8 @@ h2 {
   transform: translateX(0);
 }
 
+
 .Cart__close {
-  position: absolute;
   right: 9px;
   top: 8px;
   font-size: 35px;

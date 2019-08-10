@@ -4,8 +4,9 @@ import LineItem from './LineItem';
 class Cart extends Component {
   constructor(props) {
     super(props);
-
+    
     this.openCheckout = this.openCheckout.bind(this);
+
   }
 
   openCheckout() {
@@ -24,7 +25,7 @@ class Cart extends Component {
       );
     });
 
-    return (
+    return ( 
       <div className={`Cart ${this.props.isCartOpen ? 'Cart--open' : ''}`}>
         <header className="Cart__header">
           <h2>Your cart</h2>
@@ -35,7 +36,8 @@ class Cart extends Component {
           </button>
         </header>
         <ul className="Cart__line-items">
-          {line_items}
+        {console.log('Loading Checkout: ',this.props.loadingCheckout)}
+          {this.props.loadingCheckout ? <h1>Loading...</h1> : line_items}
         </ul>
         <footer className="Cart__footer">
           <div className="Cart-info clearfix">
