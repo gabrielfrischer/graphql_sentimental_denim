@@ -17,7 +17,7 @@ import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Slide from '@material-ui/core/Slide';
-import AlertDialogSlide from './LoginForm';
+import LoginSlide from './LoginForm';
 
 
 
@@ -88,7 +88,7 @@ function HideAppBar(props) {
           <Toolbar>
           {console.log("Props: ",props)}
             <Typography variant="h6" className={classes.title}>{props.shopName}</Typography>
-            <AlertDialogSlide/>
+            <LoginSlide loginHandle={props.loginHandle} />
       <IconButton aria-label="cart" onClick={props.openCart}>
       <StyledBadge badgeContent={props.itemCount} color="primary">
         <ShoppingCartIcon />
@@ -113,15 +113,21 @@ class App extends Component {
       isCartOpen: false,
       loadingCheckout: true,
       checkout: { lineItems: [] },
+      loggedIn:false,
       quantity : 0,
       products: [],
-      shop: {}
+      shop: {},
+      customerAccessToken:null,
+      customerAccessTokenExpire:null,
+      loadedcAT:false,
+      authenticated:false,
     };
 
     this.handleCartClose = this.handleCartClose.bind(this);
     this.addVariantToCart = this.addVariantToCart.bind(this);
     this.updateQuantityInCart = this.updateQuantityInCart.bind(this);
     this.removeLineItemInCart = this.removeLineItemInCart.bind(this);
+    this.login = this.login.bind(this)
   }
 
 
@@ -140,7 +146,7 @@ class App extends Component {
               }, 2000);
 
   
-
+ 
     
       
 
@@ -245,6 +251,101 @@ class App extends Component {
         products: res.model.shop.products,
       });
     });
+  }
+
+    
+validator(){
+  console.log('Validator Here')
+  if(this.state.customerAccessToken==null){
+    console.log('Validator: No Customer Access Token ')
+    return false
+  }
+  else{
+    console.log('Validator: Customer Access Token Exists')
+    return true
+  }
+}
+
+
+login(loginEmail, loginPassword){
+
+
+
+const input = {"input": {"email":loginEmail, "password": loginPassword} }
+
+console.log("LoginInputObject:", JSON.stringify(input))
+
+this.props.client.send(gql(this.props.client)`
+      mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+  customerAccessTokenCreate(input: $input) {
+    userErrors {
+      field
+      message
+    }
+    customerAccessToken {
+      accessToken
+      expiresAt
+    }
+  }
+}
+    `,{...input}).then(res => {
+      this.validator()
+      console.log("Res: ",res)
+      this.setState({
+        customerAccessToken: res.data.customerAccessTokenCreate.customerAccessToken.accessToken,
+        customerAccessTokenExpire: res.data.customerAccessTokenCreate.customerAccessToken.expiresAt,
+        loadedcAT:true,
+      });
+      this.setState({
+        authenticated:this.validator()
+      })
+      this.validator()
+
+      console.log('Authenticated? : ', this.state.authenticated)
+
+      console.log("Local Storage cAT before setting in LocalStorage: ", localStorage.getItem('cAT'))
+      localStorage.setItem('cAT', this.state.customerAccessToken)
+      console.log("Local Storage cAT: ", localStorage.getItem('cAT'))
+            console.log("CustomerAccessToken: ",this.state.customerAccessToken, this.state.customerAccessTokenExpire)
+    });
+
+  }
+
+  
+
+  
+
+  register(registerEmail, registerPassword){
+
+let signUpInputObject = {
+  "input": {
+    "email":registerEmail,
+    "password": registerPassword
+  } 
+}
+
+console.log(signUpInputObject)
+
+return this.props.client.send(gql(this.props.client)`
+      mutation customerCreate($input: CustomerCreateInput!) {
+  customerCreate(input: $input) {
+    userErrors {
+      field
+      message
+    }
+    customer {
+      id
+    }
+  }
+}
+    `).then(res => {
+      this.setState({
+        checkout: res.model.checkoutLineItemsAdd.checkout,
+      });
+      
+    });
+
+
   }
 
   addVariantToCart(variantId, quantity){
@@ -410,8 +511,8 @@ class App extends Component {
 
 <Router>
       <div className="App">
-      
-<HideAppBar shopName={this.state.shop.name} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+
+<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
           {!this.state.isCartOpen &&
             <div className="App__view-cart-wrapper">
@@ -420,7 +521,8 @@ class App extends Component {
           }
          
             <Link to="/">Home</Link>
-            <Link to="/login">Login</Link>
+            <Link to="/login" onClick={this.validateAuthentication}
+>Login</Link>
           
         </header>
         <RouterContainer/>
