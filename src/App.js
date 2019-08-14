@@ -88,7 +88,7 @@ function HideAppBar(props) {
           <Toolbar>
           {console.log("Props: ",props)}
             <Typography variant="h6" className={classes.title}>{props.shopName}</Typography>
-            <LoginSlide loginHandle={props.loginHandle} />
+            <LoginSlide loginHandle={props.loginHandle} authenticated={props.authenticated} />
       <IconButton aria-label="cart" onClick={props.openCart}>
       <StyledBadge badgeContent={props.itemCount} color="primary">
         <ShoppingCartIcon />
@@ -302,6 +302,7 @@ this.props.client.send(gql(this.props.client)`
       this.validator()
 
       console.log('Authenticated? : ', this.state.authenticated)
+      console.log('LoadedcAT? : ', this.state.loadedcAT)
 
       console.log("Local Storage cAT before setting in LocalStorage: ", localStorage.getItem('cAT'))
       localStorage.setItem('cAT', this.state.customerAccessToken)
@@ -512,7 +513,7 @@ return this.props.client.send(gql(this.props.client)`
 <Router>
       <div className="App">
 
-<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} authenticated={this.state.authenticated} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
           {!this.state.isCartOpen &&
             <div className="App__view-cart-wrapper">
