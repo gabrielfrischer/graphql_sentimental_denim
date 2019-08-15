@@ -89,7 +89,7 @@ function HideAppBar(props) {
           {console.log("Props: ",props)}
             <Typography variant="h6" className={classes.title}>{props.shopName}</Typography>
             {console.log('UserFirstName',props.userFirstName)}
-  {props.unmountLogin ? [<Typography>{props.userFirstName}</Typography>, <Button color="inherit">Logout</Button>]:  <LoginSlide loginHandle={props.loginHandle} authenticated={props.authenticated} />}
+  {props.unmountLogin ? [<Typography key={1}>{props.userFirstName}</Typography>, <Button key={2} color="inherit" onClick={props.logout}>Logout</Button>]:  <LoginSlide loginHandle={props.loginHandle} authenticated={props.authenticated} />}
       <IconButton aria-label="cart" onClick={props.openCart}>
       <StyledBadge badgeContent={props.itemCount} color="primary">
         <ShoppingCartIcon />
@@ -130,6 +130,7 @@ class App extends Component {
     this.updateQuantityInCart = this.updateQuantityInCart.bind(this);
     this.removeLineItemInCart = this.removeLineItemInCart.bind(this);
     this.login = this.login.bind(this)
+    this.logout = this.logout.bind(this)
   }
 
 
@@ -273,7 +274,18 @@ unmountLogin(){
     if(this.state.authenticated){
       this.setState({unmountLogin:true})
     }
+    else{
+          this.setState({unmountLogin:false})
+
+  }
   }, 1100);
+  
+}
+
+logout(){
+  this.setState({customerAccessToken:'', authenticated:false})
+  console.log('Logged Out current Auth',this.state.authenticated)
+  this.unmountLogin()
 }
 
 
@@ -524,7 +536,7 @@ return this.props.client.send(gql(this.props.client)`
 <Router>
       <div className="App">
 
-<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} authenticated={this.state.authenticated} userFirstName={'Hello Gabriel'} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} authenticated={this.state.authenticated} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
          
          
