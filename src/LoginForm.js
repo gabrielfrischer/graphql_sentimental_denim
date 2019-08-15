@@ -61,6 +61,9 @@ export default function LoginSlide(props) {
     console.log(values)
   };
 
+  setInterval(() => {
+    
+  }, 1000);
 
   
 
@@ -87,7 +90,6 @@ export default function LoginSlide(props) {
   function handleClickQuery() {
     clearTimeout(timerRef.current);
 
-
     
 
     if (query !== 'idle') {
@@ -108,26 +110,26 @@ export default function LoginSlide(props) {
 timerRef.current = setTimeout(() => {
         setQuery('success');
         
-    }, 800);
+    }, 700);
   
       
-  
-
     
 }
 
 
 
-(function handleCloseTransition(){
-  
-if(props.authenticated === true && query === 'success'){
+function handleCloseTransition(){
+
   setTimeout(() => {
-    handleClose()
-  }, 1000);
+      if(props.authenticated === true && query === 'success'){
+          handleClose()
+
+      }
+  }, 900);
 }
 
-}
-)
+
+
 
   function handleClickOpen() {
     setOpen(true);
@@ -161,7 +163,7 @@ if(props.authenticated === true && query === 'success'){
       <div className={classes.placeholder}>
       
         {props.authenticated === true && query === 'success' ? (
-          <Typography>Success!</Typography>
+          <Typography>Success! {handleCloseTransition()}</Typography>
         ) : props.authenticated === false && query === 'success' ? (
                   <Typography>Invalid Credentials, check your password or click 'Forgot Password'?</Typography>
 

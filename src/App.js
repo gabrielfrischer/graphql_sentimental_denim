@@ -1,7 +1,6 @@
 import React, { Component, useState } from 'react';
 import { BrowserRouter as Router, Link } from "react-router-dom";
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-
 import RouterContainer from './RouterContainer'
 import Products from './components/Products';
 import Cart from './components/Cart';
@@ -18,6 +17,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Slide from '@material-ui/core/Slide';
 import LoginSlide from './LoginForm';
+import Button from '@material-ui/core/Button';
 
 
 
@@ -88,7 +88,8 @@ function HideAppBar(props) {
           <Toolbar>
           {console.log("Props: ",props)}
             <Typography variant="h6" className={classes.title}>{props.shopName}</Typography>
-            <LoginSlide loginHandle={props.loginHandle} authenticated={props.authenticated} />
+            {console.log('UserFirstName',props.userFirstName)}
+  {props.unmountLogin ? [<Typography>{props.userFirstName}</Typography>, <Button color="inherit">Logout</Button>]:  <LoginSlide loginHandle={props.loginHandle} authenticated={props.authenticated} />}
       <IconButton aria-label="cart" onClick={props.openCart}>
       <StyledBadge badgeContent={props.itemCount} color="primary">
         <ShoppingCartIcon />
@@ -121,6 +122,7 @@ class App extends Component {
       customerAccessTokenExpire:null,
       loadedcAT:false,
       authenticated:false,
+      unmountLogin:false,
     };
 
     this.handleCartClose = this.handleCartClose.bind(this);
@@ -266,6 +268,14 @@ validator(){
   }
 }
 
+unmountLogin(){
+  setTimeout(() => {
+    if(this.state.authenticated){
+      this.setState({unmountLogin:true})
+    }
+  }, 1100);
+}
+
 
 login(loginEmail, loginPassword){
 
@@ -300,6 +310,7 @@ this.props.client.send(gql(this.props.client)`
         authenticated:this.validator()
       })
       this.validator()
+      this.unmountLogin()
 
       console.log('Authenticated? : ', this.state.authenticated)
       console.log('LoadedcAT? : ', this.state.loadedcAT)
@@ -513,13 +524,9 @@ return this.props.client.send(gql(this.props.client)`
 <Router>
       <div className="App">
 
-<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} authenticated={this.state.authenticated} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} authenticated={this.state.authenticated} userFirstName={'Hello Gabriel'} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
-          {!this.state.isCartOpen &&
-            <div className="App__view-cart-wrapper">
-              <button className="App__view-cart" onClick={()=> this.setState({isCartOpen: true})}>Cart</button>
-            </div>
-          }
+         
          
             <Link to="/">Home</Link>
             <Link to="/login" onClick={this.validateAuthentication}
