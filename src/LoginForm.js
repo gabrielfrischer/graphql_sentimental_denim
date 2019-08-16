@@ -49,6 +49,8 @@ export default function LoginSlide(props) {
   const [query, setQuery] = React.useState('idle');
   const timerRef = React.useRef();
   const [open, setOpen] = React.useState(false);
+  const [loadedcAT, setcAT] = React.useState(props.loadedcAT)
+  const [authenticated, setAuth] = React.useState(props.authenticated)
 
   const [values, setValues] = React.useState({
     email: "",
@@ -110,7 +112,7 @@ export default function LoginSlide(props) {
 timerRef.current = setTimeout(() => {
         setQuery('success');
         
-    }, 700);
+    }, 600);
   
       
     
@@ -125,7 +127,7 @@ function handleCloseTransition(){
           handleClose()
 
       }
-  }, 900);
+  }, 200);
 }
 
 

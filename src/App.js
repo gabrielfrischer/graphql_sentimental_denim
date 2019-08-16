@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Link } from "react-router-dom";
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import RouterContainer from './RouterContainer'
 import Products from './components/Products';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import Cart from './components/Cart';
 import {gql} from 'babel-plugin-graphql-js-client-transform';
 import PropTypes from 'prop-types';
@@ -18,6 +20,7 @@ import Container from '@material-ui/core/Container';
 import Slide from '@material-ui/core/Slide';
 import LoginSlide from './LoginForm';
 import Button from '@material-ui/core/Button';
+import ProfileOutline from '@material-ui/icons/PermIdentity'
 
 
 
@@ -39,6 +42,40 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+
+function SimpleMenu(props) {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  function handleClick(event) {
+    setAnchorEl(event.currentTarget);
+  }
+
+  function handleClose() {
+    setAnchorEl(null);
+  }
+
+  return (
+    <div>
+        <Slide direction="down" in={props.unmountLogin} mountOnEnter unmountOnExit>
+      <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} color="inherit">
+        Profile <ProfileOutline />
+      </Button>
+      </Slide>
+ 
+      <Menu
+        id="simple-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={handleClose}>Profile</MenuItem>
+        <MenuItem onClick={handleClose}>Track Your Order</MenuItem>
+        <MenuItem onClick={props.logout}>Logout</MenuItem>
+      </Menu>
+    </div>
+  );
+}
 
 const StyledBadge = withStyles(theme => ({
   badge: {
@@ -86,12 +123,11 @@ function HideAppBar(props) {
       <HideOnScroll {...props}>
         <AppBar>
           <Toolbar>
-          {console.log("Props: ",props)}
             <Typography variant="h6" className={classes.title}>{props.shopName}</Typography>
             {console.log('UserFirstName',props.userFirstName)}
-  {props.unmountLogin ? [<Typography key={1}>{props.userFirstName}</Typography>, <Button key={2} color="inherit" onClick={props.logout}>Logout</Button>]:  <LoginSlide loginHandle={props.loginHandle} authenticated={props.authenticated} />}
-      <IconButton aria-label="cart" onClick={props.openCart}>
-      <StyledBadge badgeContent={props.itemCount} color="primary">
+  {props.unmountLogin ?  <SimpleMenu logout={props.logout} unmountLogin={props.unmountLogin} />:  <LoginSlide loginHandle={props.loginHandle} loadedcAT={props.loadedcAT} authenticated={props.authenticated} />}
+      <IconButton aria-label="cart" color="inherit" onClick={props.openCart}>
+      <StyledBadge badgeContent={props.itemCount} >
         <ShoppingCartIcon />
       </StyledBadge>
     </IconButton>
@@ -118,8 +154,8 @@ class App extends Component {
       quantity : 0,
       products: [],
       shop: {},
-      customerAccessToken:null,
-      customerAccessTokenExpire:null,
+      customerAccessToken:'',
+      customerAccessTokenExpire:'',
       loadedcAT:false,
       authenticated:false,
       unmountLogin:false,
@@ -313,6 +349,7 @@ this.props.client.send(gql(this.props.client)`
     `,{...input}).then(res => {
       this.validator()
       console.log("Res: ",res)
+      try {
       this.setState({
         customerAccessToken: res.data.customerAccessTokenCreate.customerAccessToken.accessToken,
         customerAccessTokenExpire: res.data.customerAccessTokenCreate.customerAccessToken.expiresAt,
@@ -323,6 +360,15 @@ this.props.client.send(gql(this.props.client)`
       })
       this.validator()
       this.unmountLogin()
+      }
+catch(error) {
+  console.error(error);
+  // expected output: ReferenceError: nonExistentFunction is not defined
+  // Note - error messages will vary depending on browser
+}
+
+      
+      
 
       console.log('Authenticated? : ', this.state.authenticated)
       console.log('LoadedcAT? : ', this.state.loadedcAT)
@@ -536,7 +582,7 @@ return this.props.client.send(gql(this.props.client)`
 <Router>
       <div className="App">
 
-<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} authenticated={this.state.authenticated} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
          
          
