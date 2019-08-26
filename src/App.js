@@ -21,6 +21,7 @@ import Slide from '@material-ui/core/Slide';
 import LoginSlide from './LoginForm';
 import Button from '@material-ui/core/Button';
 import ProfileOutline from '@material-ui/icons/PermIdentity'
+import CustomizedSnackbars from './Snackbars'
 
 
 
@@ -159,6 +160,8 @@ class App extends Component {
       loadedcAT:false,
       authenticated:false,
       unmountLogin:false,
+      noInternetCheckout:'',
+      noInternetShop:'',
     };
 
     this.handleCartClose = this.handleCartClose.bind(this);
@@ -229,7 +232,10 @@ class App extends Component {
         loadingCheckout: false,
         checkout: res.model.checkoutCreate.checkout,
       });
-    });
+    }).catch((err) => {
+      this.setState({noInternetCheckout:'You are not connected to the Internet.'})
+      console.log('No Internet Message: ',this.state.noInternet)
+    } );
 
     client.send(gql(client)`
       query {
@@ -289,7 +295,11 @@ class App extends Component {
         shop: res.model.shop,
         products: res.model.shop.products,
       });
-    });
+    })
+    .catch((err) => {
+      this.setState({noInternetShop:'Could not fetch products from internet.'})
+      console.log("Could not fetch products from internet.")
+    })
   }
 
     
@@ -314,7 +324,7 @@ unmountLogin(){
           this.setState({unmountLogin:false})
 
   }
-  }, 1100);
+  }, 100);
   
 }
 
@@ -581,7 +591,7 @@ return this.props.client.send(gql(this.props.client)`
 
 <Router>
       <div className="App">
-
+<CustomizedSnackbars authenticated={this.state.authenticated} noInternetCheckout={this.state.noInternetCheckout} noInternetShop={this.state.noInternetShop}  />
 <HideAppBar shopName={this.state.shop.name} loginHandle={this.login} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
          

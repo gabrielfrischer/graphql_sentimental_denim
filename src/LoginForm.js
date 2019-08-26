@@ -99,13 +99,11 @@ export default function LoginSlide(props) {
       return;
     }
 
-    console.log('HandleClickQuery Props: ', props)
 
        setQuery('progress');
 
 
 
-      console.log('Authentication is now: ', props.authenticated)
 
 
       
@@ -125,6 +123,7 @@ function handleCloseTransition(){
   setTimeout(() => {
       if(props.authenticated === true && query === 'success'){
           handleClose()
+
 
       }
   }, 200);
@@ -146,7 +145,6 @@ function handleCloseTransition(){
   return (
     <div>
       <Button color="inherit" onClick={handleClickOpen}>Login</Button>
-
       <Dialog
         open={open}
         TransitionComponent={Transition}
