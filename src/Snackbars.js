@@ -104,7 +104,8 @@ class CustomizedSnackbars extends React.Component {
     openError:false,
     numberOfTimesSuccess:0,
     numberOfTimesError:0,
-    noIntMessage:'You do not have an internet connection.'
+    noIntMessage:'You do not have an internet connection.',
+    loggedIn:false
 
   };
 
@@ -112,7 +113,7 @@ class CustomizedSnackbars extends React.Component {
 
 componentWillReceiveProps(nextProps) {
  console.log('componentWillReceiveProps', nextProps);
- if (this.props !== nextProps && this.props.authenticated ==true && this.state.numberOfTimes ==0 ) {
+ if (this.props !== nextProps && this.props.authenticated ==true && this.state.numberOfTimesSuccess ==0 ) {
     this.setState({ openSuccess: true });
     setTimeout(() => {
           this.setState({ openSuccess: false, numberOfTimesSuccess:1 });
@@ -130,7 +131,7 @@ componentWillReceiveProps(nextProps) {
 
 
   handleClick = () => {
-    this.setState({ openSucess: true });
+    this.setState({ openSuccess: true });
     
   };
 
