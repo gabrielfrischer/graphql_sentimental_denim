@@ -10,6 +10,9 @@
     "graphql-js-client": "^0.6.2",
     "react": "16.9",
     "react-dom": "16.9",
+    "react-images": "^1.0.0",
+    "react-material-ui-form-validator": "^2.0.9",
+    "react-photo-gallery": "^8.0.0",
     "react-router-dom": "^5.0.1",
     "react-transition-group": "^4.2.2",
     "styled-components": "^4.3.2"

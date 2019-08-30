@@ -101,11 +101,15 @@ class CustomizedSnackbars extends React.Component {
   
   state = {
     openSuccess: false,
+    openSuccessLogout: false,
+    openSuccessSignedUp: false,
     openError:false,
     numberOfTimesSuccess:0,
+    numberOfTimesSuccessSignup:0,
     numberOfTimesError:0,
     noIntMessage:'You do not have an internet connection.',
-    loggedIn:false
+    loggedIn:false,
+    signedUp:false,
 
   };
 
@@ -113,28 +117,63 @@ class CustomizedSnackbars extends React.Component {
 
 componentWillReceiveProps(nextProps) {
  console.log('componentWillReceiveProps', nextProps);
- if (this.props !== nextProps && this.props.authenticated ==true && this.state.numberOfTimesSuccess ==0 ) {
+ if (this.props !== nextProps && this.props.authenticated ==true && this.state.numberOfTimesSuccess==0 ) {
     this.setState({ openSuccess: true });
     setTimeout(() => {
           this.setState({ openSuccess: false, numberOfTimesSuccess:1 });
 
-    }, 3000);
+    }, 4000);
  }
+
+  if (this.props !== nextProps && this.props.signedUp ==true && this.state.numberOfTimesSuccessSignup==0 ) {
+    this.setState({ openSuccessSignedUp: true, numberOfTimesSuccessSignup:1 });
+    setTimeout(() => {
+          this.setState({ openSuccessSignedUp: false });
+
+    }, 4000);
+ }
+
 
 
 
  if(this.props !== nextProps && this.props.noInternetCheckout.length > 0){
    this.setState({openError:true})
  }
+
+  if(this.props !== nextProps && this.state.numberOfTimesSuccess ==1 && this.props.authenticated == false){
+   this.setState({openSuccessLogout:true, numberOfTimesSuccess:0})
+   setTimeout(() => {
+          this.setState({ openSuccessLogout: false});
+
+    }, 4000);
+ }
+
+ 
+
+
 }
 
 
 
-  handleClick = () => {
-    this.setState({ openSuccess: true });
-    
+
+  
+
+
+  handleCloseSuccessSignUp = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({ openSuccessSignedUp: false });
   };
 
+    handleCloseSuccessLogout = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({ openSuccessLogout: false });
+  };
   
 
 
@@ -156,7 +195,7 @@ componentWillReceiveProps(nextProps) {
 
   render() {
     const { classes } = this.props;
-    const {openSuccess, openError} = this.state 
+    const {openSuccess, openError, openSuccessSignedUp, openSuccessLogout} = this.state 
 
 
     return (
@@ -167,13 +206,43 @@ componentWillReceiveProps(nextProps) {
             horizontal: "center"
           }}
           open={openSuccess}
-          autoHideDuration={3000}
+          autoHideDuration={4000}
           onClose={this.handleCloseSuccess}
         >
           <MySnackbarContentWrapper
             onClose={this.handleCloseSuccess}
             variant="success"
             message="You've been logged in successfully!"
+          />
+        </Snackbar>
+        <Snackbar
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center"
+          }}
+          open={openSuccessSignedUp}
+          autoHideDuration={4000}
+          onClose={this.handleCloseSuccessSignUp}
+        >
+          <MySnackbarContentWrapper
+            onClose={this.handleCloseSuccessSignUp}
+            variant="success"
+            message="Congratulations! You've signed up. Now login."
+          />
+        </Snackbar>
+        <Snackbar
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center"
+          }}
+          open={openSuccessLogout}
+          autoHideDuration={4000}
+          onClose={this.handleCloseSuccessLogout}
+        >
+          <MySnackbarContentWrapper
+            onClose={this.handleCloseSuccessLogout}
+            variant="success"
+            message="You have logged out successfully."
           />
         </Snackbar>
         <Snackbar

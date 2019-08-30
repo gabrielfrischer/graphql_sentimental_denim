@@ -9,13 +9,15 @@ import {
   withRouter
 } from 'react-router-dom'
 import './assets/transition.css'
+import Products from './components/Products';
+import Home from './Home';
 
 
 
-function RouterContainer({ location }) {
+function RouterContainer({ location, ...rest }) {
   return (
     <Wrapper>
-{console.log(location)}
+{console.log("Rest:", rest)}
 
       <TransitionGroup className="transition-group">
         <CSSTransition
@@ -25,7 +27,8 @@ function RouterContainer({ location }) {
         >
           <section className="route-section">
             <Switch location={location}>
-              <Route exact path="/"/>
+              <Route exact path="/" render={(props)=><Home images={rest.products[0]} slideToggle={rest.viewOpen}/> }/>
+              <Route path="/tie" render={(props)=><Products products={rest.products} updateQuantity={rest.quantity} addVariantToCart={rest.addVariantToCart} images={rest.products[0]}/> }/>
               <Route path="/login" render={()=><h1>Login</h1>} />
             </Switch>
           </section>

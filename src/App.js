@@ -1,5 +1,5 @@
 import React, { Component, useState } from 'react';
-import { BrowserRouter as Router, Link } from "react-router-dom";
+import { BrowserRouter as Router, Link, NavLink } from "react-router-dom";
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import RouterContainer from './RouterContainer'
 import Products from './components/Products';
@@ -22,6 +22,12 @@ import LoginSlide from './LoginForm';
 import Button from '@material-ui/core/Button';
 import ProfileOutline from '@material-ui/icons/PermIdentity'
 import CustomizedSnackbars from './Snackbars'
+import RegisterSlide from './RegisterForm';
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+import RestoreIcon from '@material-ui/icons/Restore';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
 
 
 
@@ -57,7 +63,7 @@ function SimpleMenu(props) {
 
   return (
     <div>
-        <Slide direction="down" in={props.unmountLogin} mountOnEnter unmountOnExit>
+        <Slide direction="down" in={props.unmountLogin} >
       <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} color="inherit">
         Profile <ProfileOutline />
       </Button>
@@ -95,13 +101,17 @@ function HideOnScroll(props) {
   // Note that you normally won't need to set the window ref as useScrollTrigger
   // will default to window.
   // This is only being set here because the demo is in an iframe.
-  const trigger = useScrollTrigger({ target: window ? window() : undefined });
-
-  return (
+  const trigger = useScrollTrigger();
+console.log("Children: ",props)
+  
+     return (
+   
     <Slide appear={false} direction="down" in={!trigger}>
-      {children}
+      {children} 
     </Slide>
   );
+  
+  
 }
 
 HideOnScroll.propTypes = {
@@ -113,10 +123,72 @@ HideOnScroll.propTypes = {
   window: PropTypes.func,
 };
 
+
+
+function HideOnScrollBottom(props) {
+  const { children, window, viewOpen } = props;
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger();
+console.log("Children: ",props)
+  
+     return (
+   
+    <Slide appear={false} direction="up" in={!trigger || viewOpen }>
+      {children} 
+    </Slide>
+  );
+  
+  
+}
+
+HideOnScrollBottom.propTypes = {
+  children: PropTypes.element.isRequired,
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window: PropTypes.func,
+};
+
+const useStylesBottomNav = makeStyles({
+  root: {
+    width: '100vw',
+    position:'fixed',
+    bottom:-5,
+
+  },
+});
+
+function SimpleBottomNavigation({location, ...props}) {
+  const classes = useStylesBottomNav();
+  const [value, setValue] = React.useState(0);
+
+  return (
+    <React.Fragment>
+      <HideOnScrollBottom {...props}>
+    <BottomNavigation
+      value={value}
+      onChange={(event, newValue) => {
+        setValue(newValue);
+      }}
+      showLabels
+      className={classes.root}
+    >
+      <BottomNavigationAction containerelement={<Link to="/tie"></Link>} label="Recents" icon={<RestoreIcon />} />
+      <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
+      <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
+    </BottomNavigation>
+    </HideOnScrollBottom>
+        </React.Fragment>
+  );
+}
+
 function HideAppBar(props) {
     const classes = useStyles();
     const [cartState, cartOpen] = useState(false)
-    {console.log("Cart State: ", cartState)} 
+    console.log("Cart State: ", cartState)
 
   return (
     <React.Fragment>
@@ -126,7 +198,9 @@ function HideAppBar(props) {
           <Toolbar>
             <Typography variant="h6" className={classes.title}>{props.shopName}</Typography>
             {console.log('UserFirstName',props.userFirstName)}
-  {props.unmountLogin ?  <SimpleMenu logout={props.logout} unmountLogin={props.unmountLogin} />:  <LoginSlide loginHandle={props.loginHandle} loadedcAT={props.loadedcAT} authenticated={props.authenticated} />}
+  {props.unmountLogin ?  <SimpleMenu logout={props.logout} unmountLogin={props.unmountLogin} />: <LoginSlide loginHandle={props.loginHandle} loadedcAT={props.loadedcAT} authenticated={props.authenticated} key={1} />}
+    {props.unmountSignup || props.unmountLogin ? null :  <RegisterSlide registerHandle={props.registerHandle} signedUp={props.signedUp} key={2} />}
+
       <IconButton aria-label="cart" color="inherit" onClick={props.openCart}>
       <StyledBadge badgeContent={props.itemCount} >
         <ShoppingCartIcon />
@@ -152,24 +226,32 @@ class App extends Component {
       loadingCheckout: true,
       checkout: { lineItems: [] },
       loggedIn:false,
+      loggedOut:true,
       quantity : 0,
       products: [],
       shop: {},
       customerAccessToken:'',
       customerAccessTokenExpire:'',
+      customerID:'',
+      signedUp:null,
       loadedcAT:false,
       authenticated:false,
       unmountLogin:false,
+      unmountSignup:false,
       noInternetCheckout:'',
       noInternetShop:'',
+      viewOpen:false,
     };
 
     this.handleCartClose = this.handleCartClose.bind(this);
     this.addVariantToCart = this.addVariantToCart.bind(this);
     this.updateQuantityInCart = this.updateQuantityInCart.bind(this);
+    this.UpdateQuantity = this.UpdateQuantity.bind(this);
     this.removeLineItemInCart = this.removeLineItemInCart.bind(this);
     this.login = this.login.bind(this)
     this.logout = this.logout.bind(this)
+    this.register = this.register.bind(this)
+    this.SlideToggle = this.SlideToggle.bind(this)
   }
 
 
@@ -177,15 +259,7 @@ class App extends Component {
 
   componentWillMount() {
     const client = this.props.client;
-      setInterval(() => {
- if(this.state.checkout.lineItems[0] !== undefined){
-          this.setState({quantity:this.state.checkout.lineItems[0].quantity}) 
-          console.log("Quantity: ", this.state.quantity)
-      }
-      else{
-        console.log("It's Undefined")
-      }    
-              }, 2000);
+   
 
   
  
@@ -274,7 +348,7 @@ class App extends Component {
                     }
                   }
                 }
-                images(first: 10) {
+                images(first: 20) {
                   pageInfo {
                     hasNextPage
                     hasPreviousPage
@@ -295,6 +369,7 @@ class App extends Component {
         shop: res.model.shop,
         products: res.model.shop.products,
       });
+      console.log("Products: ",this.state.products)
     })
     .catch((err) => {
       this.setState({noInternetShop:'Could not fetch products from internet.'})
@@ -302,6 +377,21 @@ class App extends Component {
     })
   }
 
+
+SlideToggle(viewerOpen){
+this.setState({viewOpen:viewerOpen})
+}
+
+UpdateQuantity(){
+ if(this.state.checkout.lineItems[0] !== undefined){
+          this.setState({quantity:this.state.checkout.lineItems[0].quantity}) 
+          console.log("Quantity: ", this.state.quantity)
+      }
+      else{
+        this.setState({quantity:this.state.checkout.lineItems[0].quantity})
+        console.log("Nothing in cart")
+      }    
+}
     
 validator(){
   console.log('Validator Here')
@@ -311,6 +401,18 @@ validator(){
   }
   else{
     console.log('Validator: Customer Access Token Exists')
+    return true
+  }
+}
+
+registerValidator(){
+  console.log('Validator Here')
+  if(this.state.customerID===''){
+    console.log('Register Validator: No Customer ID, not signed up ')
+    return false
+  }
+  else{
+    console.log('Validator: Customer ID Exists, Signed Up: ', this.state.customerID)
     return true
   }
 }
@@ -328,8 +430,21 @@ unmountLogin(){
   
 }
 
+unmountSignup(){
+  setTimeout(() => {
+    if(this.state.signedUp){
+      this.setState({unmountSignup:true})
+    }
+    else{
+          this.setState({unmountSignup:false})
+
+  }
+  }, 300);
+  
+}
+
 logout(){
-  this.setState({customerAccessToken:'', authenticated:false})
+  this.setState({customerAccessToken:'', authenticated:false, unmountSignup:false, customerID:'' })
   console.log('Logged Out current Auth',this.state.authenticated)
   this.unmountLogin()
 }
@@ -391,23 +506,17 @@ catch(error) {
 
   }
 
-  
 
-  
+  register(loginEmail, loginPassword){
 
-  register(registerEmail, registerPassword){
 
-let signUpInputObject = {
-  "input": {
-    "email":registerEmail,
-    "password": registerPassword
-  } 
-}
 
-console.log(signUpInputObject)
+const input = {"input": {"email":loginEmail, "password": loginPassword} }
 
-return this.props.client.send(gql(this.props.client)`
-      mutation customerCreate($input: CustomerCreateInput!) {
+console.log("RegisterInputObject:", JSON.stringify(input))
+
+this.props.client.send(gql(this.props.client)`
+     mutation customerCreate($input: CustomerCreateInput!) {
   customerCreate(input: $input) {
     userErrors {
       field
@@ -418,15 +527,31 @@ return this.props.client.send(gql(this.props.client)`
     }
   }
 }
-    `).then(res => {
+    `,{...input}).then(res => {
+      this.registerValidator()
+      console.log("Res: ",res)
+      try {
       this.setState({
-        checkout: res.model.checkoutLineItemsAdd.checkout,
+        customerID: res.data.customerCreate.customer.id,
       });
-      
+      this.setState({
+        signedUp:this.registerValidator()
+      })
+      this.registerValidator()
+      this.unmountSignup()
+      }
+catch(error) {
+  console.error(error);
+  // expected output: ReferenceError: nonExistentFunction is not defined
+  // Note - error messages will vary depending on browser
+}
+
+    
     });
 
-
   }
+  
+
 
   addVariantToCart(variantId, quantity){
     this.setState({
@@ -591,8 +716,8 @@ return this.props.client.send(gql(this.props.client)`
 
 <Router>
       <div className="App">
-<CustomizedSnackbars authenticated={this.state.authenticated} noInternetCheckout={this.state.noInternetCheckout} noInternetShop={this.state.noInternetShop}  />
-<HideAppBar shopName={this.state.shop.name} loginHandle={this.login} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+<CustomizedSnackbars authenticated={this.state.authenticated} signedUp={this.state.signedUp} noInternetCheckout={this.state.noInternetCheckout} noInternetShop={this.state.noInternetShop}  />
+<HideAppBar shopName={this.state.shop.name} viewOpen={this.state.viewOpen} loginHandle={this.login} registerHandle={this.register} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} unmountSignup={this.state.unmountSignup} signedUp={this.state.signedUp} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
          
          
@@ -601,12 +726,8 @@ return this.props.client.send(gql(this.props.client)`
 >Login</Link>
           
         </header>
-        <RouterContainer/>
-
-        <Products
-          products={this.state.products}
-          addVariantToCart={this.addVariantToCart}
-        />
+        <RouterContainer products={this.state.products} addVariantToCart={this.addVariantToCart} viewOpen={this.SlideToggle} quantity={this.UpdateQuantity}
+           />
         <Cart
           loadingCheckout={this.state.loadingCheckout}
           checkout={this.state.checkout}
@@ -615,7 +736,8 @@ return this.props.client.send(gql(this.props.client)`
           updateQuantityInCart={this.updateQuantityInCart}
           removeLineItemInCart={this.removeLineItemInCart}
         />
-      </div>
+        <SimpleBottomNavigation viewOpen={this.state.viewOpen}/>
+              </div>
   </Router>
 
     

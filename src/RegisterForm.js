@@ -20,6 +20,7 @@ import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
+
 /* import {gql} from 'babel-plugin-graphql-js-client-transform';
 import client from './index' */
 
@@ -40,34 +41,58 @@ const useStyles = makeStyles(theme => ({
   placeholder: {
     height: 40,
   },
+  formControl: {
+    width:'100%'
+  },
 }));
 
 
 
-export default function LoginSlide(props) {
+export default function RegisterSlide(props) {
   const classes = useStyles();
   const [query, setQuery] = useState('idle');
   const timerRef = React.useRef();
   const [open, setOpen] = useState(false);
   const [loadedcAT, setcAT] = useState(props.loadedcAT)
-  const [authenticated, setAuth] = useState(props.authenticated)
+  const [signedUp, setAuth] = useState(props.signedUp)
+  const [passwordsMatch, setMatch] = useState(false)
 
   const [values, setValues] = useState({
     email: "",
     password: "",
+    repeatPassword:"",
     showPassword: false,
   });
 
-   const handleChange = prop => event => {
-    setValues({ ...values, [prop]: event.target.value });
-    console.log(values)
-  };
-
-  setInterval(() => {
-    
-  }, 1000);
 
   
+
+
+
+
+   const handleChange = prop => event => {
+    setValues({ ...values, [prop]: event.target.value })
+    console.log(values)
+
+    checkMatch()
+   
+    
+  };
+
+
+  const checkMatch = () => {
+    event.preventDefault();
+        if(values.password == values.repeatPassword){
+      setMatch((prevState)=>{return false})
+    }
+    else{
+      setMatch((prevState)=>{return true})
+    }
+
+console.log("Do Passwords Match:", passwordsMatch)
+  };
+
+
 
   useEffect(
     () => () => {
@@ -75,6 +100,17 @@ export default function LoginSlide(props) {
     },
     [],
   );
+
+    useEffect(
+    () => () => {
+      console.log('Use Effect Triggered')
+      checkMatch()
+    },
+    [values.password, values.repeatPassword],
+  );
+
+
+
 
 
  
@@ -121,7 +157,7 @@ timerRef.current = setTimeout(() => {
 function handleCloseTransition(){
 
   setTimeout(() => {
-      if(props.authenticated === true && query === 'success'){
+      if(props.signedUp === true && query === 'success'){
           handleClose()
 
 
@@ -129,13 +165,8 @@ function handleCloseTransition(){
   }, 200);
 }
 
-function keyPress(e){
-      if(e.keyCode == 13){
-        console.log('Enter Pressed')
- props.loginHandle(values.email, values.password)
-  handleClickQuery();       // put the login here
-      }
-   }
+
+
 
 
   function handleClickOpen() {
@@ -150,7 +181,7 @@ function keyPress(e){
 
   return (
     <div>
-      <Button color="inherit" onClick={handleClickOpen}>Login</Button>
+      <Button color="inherit" onClick={handleClickOpen}>Sign Up</Button>
       <Dialog
         open={open}
         TransitionComponent={Transition}
@@ -159,18 +190,18 @@ function keyPress(e){
         aria-labelledby="alert-dialog-slide-title"
         aria-describedby="alert-dialog-slide-description"
       >
-        <DialogTitle id="alert-dialog-slide-title">{"Login to Sentimental Denim"}</DialogTitle>
+        <DialogTitle id="alert-dialog-slide-title">{"Sign Up for Sentimental Denim"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-          Enter your email and password below, if you can't login, select forgot password below.
+          Enter your email and create a password below to create an account.
           </DialogContentText>
 
            <div className={classes.root}>
       <div className={classes.placeholder}>
       
-        {props.authenticated === true && query === 'success' ? (
+        {props.signedUp === true && query === 'success' ? (
           <Typography>Success! {handleCloseTransition()}</Typography>
-        ) : props.authenticated === false && query === 'success' ? (
+        ) : props.signedUp === false && query === 'success' ? (
                   <Typography>Invalid Credentials, check your password or click 'Forgot Password'?</Typography>
 
         ) : (
@@ -194,19 +225,46 @@ function keyPress(e){
         placeholder=""
         margin="normal"
         fullWidth
+        required={true}
         type="email"
         onChange={handleChange('email')}
         variant="outlined"
       />
+            <FormControl className={classes.formControl}>
       <OutlinedInput
           id="adornment-password"
           label="Password"
           placeholder="Password"
           fullWidth
+          error={passwordsMatch}
+          required={true}
           type={values.showPassword ? 'text' : 'password'}
-          onKeyDown={keyPress}
           value={values.password}
           onChange={handleChange('password')}
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+              >
+                {values.showPassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </InputAdornment>
+          }
+        />
+        <FormHelperText>Hello</FormHelperText>
+        </FormControl>
+        <OutlinedInput
+          id="adornment-password"
+          label="Repeat Password"
+          placeholder="Repeat Password"
+          fullWidth
+          error={passwordsMatch}
+          required={true}
+          type={values.showPassword ? 'text' : 'password'}
+          value={values.repeatPassword}
+          onChange={handleChange('repeatPassword')}
           endAdornment={
             <InputAdornment position="end">
               <IconButton
@@ -226,8 +284,8 @@ function keyPress(e){
           </Button>
 
           {console.log("Login Form Values: ", values)}
-          <Button onClick={() => { props.loginHandle(values.email, values.password); handleClickQuery();}} color="primary">
-            Login
+          <Button onClick={() => { props.registerHandle(values.email, values.password); handleClickQuery();}} color="primary">
+            Sign Up
           </Button>
         </DialogActions>
       </Dialog>
