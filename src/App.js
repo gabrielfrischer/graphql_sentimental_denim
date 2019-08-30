@@ -373,7 +373,7 @@ class App extends Component {
     })
     .catch((err) => {
       this.setState({noInternetShop:'Could not fetch products from internet.'})
-      console.log("Could not fetch products from internet.")
+      console.log("Could not fetch products from internet. Hey")
     })
   }
 
