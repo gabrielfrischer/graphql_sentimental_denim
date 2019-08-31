@@ -97,7 +97,7 @@ const StyledBadge = withStyles(theme => ({
 }))(Badge);
 
 function HideOnScroll(props) {
-  const { children, window } = props;
+  const { children, window, viewOpenState } = props;
   // Note that you normally won't need to set the window ref as useScrollTrigger
   // will default to window.
   // This is only being set here because the demo is in an iframe.
@@ -106,7 +106,7 @@ console.log("Children: ",props)
   
      return (
    
-    <Slide appear={false} direction="down" in={!trigger}>
+    <Slide appear={false} direction="down" in={!trigger &&!viewOpenState}>
       {children} 
     </Slide>
   );
@@ -126,7 +126,7 @@ HideOnScroll.propTypes = {
 
 
 function HideOnScrollBottom(props) {
-  const { children, window, viewOpen } = props;
+  const { children, window, viewOpenState } = props;
   // Note that you normally won't need to set the window ref as useScrollTrigger
   // will default to window.
   // This is only being set here because the demo is in an iframe.
@@ -135,7 +135,7 @@ console.log("Children: ",props)
   
      return (
    
-    <Slide appear={false} direction="up" in={!trigger || viewOpen }>
+    <Slide appear={false} direction="up" in={!viewOpenState && !trigger}>
       {children} 
     </Slide>
   );
@@ -379,6 +379,7 @@ class App extends Component {
 
 
 SlideToggle(viewerOpen){
+  console.log('Slide Toggle Viewer Open:', viewerOpen)
 this.setState({viewOpen:viewerOpen})
 }
 
@@ -717,7 +718,7 @@ catch(error) {
 <Router>
       <div className="App">
 <CustomizedSnackbars authenticated={this.state.authenticated} signedUp={this.state.signedUp} noInternetCheckout={this.state.noInternetCheckout} noInternetShop={this.state.noInternetShop}  />
-<HideAppBar shopName={this.state.shop.name} viewOpen={this.state.viewOpen} loginHandle={this.login} registerHandle={this.register} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} unmountSignup={this.state.unmountSignup} signedUp={this.state.signedUp} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+<HideAppBar shopName={this.state.shop.name} viewOpenState={this.state.viewOpen} loginHandle={this.login} registerHandle={this.register} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} unmountSignup={this.state.unmountSignup} signedUp={this.state.signedUp} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
         <header className="App__header">
          
          
@@ -726,7 +727,7 @@ catch(error) {
 >Login</Link>
           
         </header>
-        <RouterContainer products={this.state.products} addVariantToCart={this.addVariantToCart} viewOpen={this.SlideToggle} quantity={this.UpdateQuantity}
+        <RouterContainer products={this.state.products} addVariantToCart={this.addVariantToCart} viewOpen={this.SlideToggle} viewOpenState={this.state.viewOpen} quantity={this.UpdateQuantity}
            />
         <Cart
           loadingCheckout={this.state.loadingCheckout}
@@ -736,7 +737,7 @@ catch(error) {
           updateQuantityInCart={this.updateQuantityInCart}
           removeLineItemInCart={this.removeLineItemInCart}
         />
-        <SimpleBottomNavigation viewOpen={this.state.viewOpen}/>
+        <SimpleBottomNavigation viewOpenState={this.state.viewOpen}/>
               </div>
   </Router>
 

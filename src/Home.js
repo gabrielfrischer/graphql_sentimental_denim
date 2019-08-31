@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { render } from "react-dom";
 import Gallery from "react-photo-gallery";
 import Carousel, { Modal, ModalGateway } from "react-images";
@@ -9,7 +9,7 @@ export default function Home(props) {
     console.log("Photos: ", props)
   const photos = []
   
-   const makegrid = () => {
+   const makegrid = () =>  {
       
       for(var i=0;i<props.images.images.length;i++){
           console.log(props.images.images[i])
@@ -22,6 +22,15 @@ export default function Home(props) {
       }
   }
 
+useEffect(() => {
+  console.log('Viewer Open Props:',props)
+    props.slideToggle(viewerIsOpen)
+
+  }, [viewerIsOpen]);
+
+
+
+``
   function styleFn(base, state) {
   // optionally spread base styles
   return { ...base, color: state.isModal ? 'blue' : 'red' };
@@ -33,13 +42,11 @@ export default function Home(props) {
     setCurrentImage(index);
     setViewerIsOpen(true);
     console.log(props)
-    props.slideToggle(viewerIsOpen)
   }, []);
 
   const closeLightbox = () => {
     setCurrentImage(0);
     setViewerIsOpen(false);
-    props.slideToggle(viewerIsOpen)
   };
   if(props.images===undefined && photos.length==0){
         return <h1>Loading...</h1>
@@ -64,7 +71,7 @@ export default function Home(props) {
             />
           </Modal>
         ) : null}
-      </ModalGateway>
+      </ModalGateway> 
     </div>
   );
     }
