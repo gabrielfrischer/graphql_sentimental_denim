@@ -56,6 +56,7 @@ export default function RegisterSlide(props) {
   const [loadedcAT, setcAT] = useState(props.loadedcAT)
   const [signedUp, setAuth] = useState(props.signedUp)
   const [passwordsMatch, setMatch] = useState(false)
+  const [passwordLength, setLength ] = useState(0)
 
   const [values, setValues] = useState({
     email: "",
@@ -88,8 +89,11 @@ export default function RegisterSlide(props) {
       setMatch((prevState)=>{return true})
     }
 
-console.log("Do Passwords Match:", passwordsMatch)
   };
+
+
+
+
 
   useEffect(
      () => {
@@ -249,7 +253,7 @@ function handleCloseTransition(){
           placeholder="Password"
           fullWidth
           error={passwordsMatch}
-          required={true}
+          requigit={true}
           type={values.showPassword ? 'text' : 'password'}
           value={values.password}
           onChange={handleChange('password')}
@@ -296,7 +300,7 @@ function handleCloseTransition(){
           </Button>
 
           {console.log("Login Form Values: ", values)}
-          <Button onClick={() => { props.registerHandle(values.email, values.password); handleClickQuery();}} color="primary">
+          <Button onClick={() => { props.registerHandle(values.email, values.password); handleClickQuery();}} disabled={passwordsMatch || values.password.length===0} color="primary">
             Sign Up
           </Button>
         </DialogActions>
