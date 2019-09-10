@@ -249,7 +249,7 @@ function handleCloseTransition(){
       <OutlinedInput
           id="adornment-password"
           label="Password"
-          placeholder="Password"
+          placeholder="Password *"
           fullWidth
           error={passwordsMatch}
           requigit={true}
@@ -273,7 +273,7 @@ function handleCloseTransition(){
         <OutlinedInput
           id="adornment-password"
           label="Repeat Password"
-          placeholder="Confirm Password Again"
+          placeholder="Confirm Password Again *"
           fullWidth
           error={passwordsMatch}
           required={true}
