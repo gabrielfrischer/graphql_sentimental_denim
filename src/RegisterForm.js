@@ -81,7 +81,6 @@ export default function RegisterSlide(props) {
 
 
   const checkMatch = () => {
-    event.preventDefault();
         if(values.password == values.repeatPassword){
       setMatch((prevState)=>{return false})
     }
@@ -92,6 +91,19 @@ export default function RegisterSlide(props) {
 console.log("Do Passwords Match:", passwordsMatch)
   };
 
+  useEffect(
+     () => {
+      checkMatch()
+    },
+    [values.password],
+  );
+
+  useEffect(
+    () => {
+      checkMatch()
+    },
+    [values.repeatPassword],
+  );
 
 
   useEffect(
@@ -253,12 +265,12 @@ function handleCloseTransition(){
             </InputAdornment>
           }
         />
-        <FormHelperText>Hello</FormHelperText>
+        <FormHelperText></FormHelperText>
         </FormControl>
         <OutlinedInput
           id="adornment-password"
           label="Repeat Password"
-          placeholder="Repeat Password"
+          placeholder="Confirm Password Again"
           fullWidth
           error={passwordsMatch}
           required={true}

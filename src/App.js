@@ -25,9 +25,14 @@ import CustomizedSnackbars from './Snackbars'
 import RegisterSlide from './RegisterForm';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+import HomeIcon from '@material-ui/icons/Home';
 import RestoreIcon from '@material-ui/icons/Restore';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
+import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
+import clsx from 'clsx';
+import { loadCSS } from 'fg-loadcss';
+import Icon from '@material-ui/core/Icon';
+
 
 
 
@@ -76,7 +81,7 @@ function SimpleMenu(props) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
+        <MenuItem onClick={handleClose} component={Link} to="/profile">Profile</MenuItem>
         <MenuItem onClick={handleClose}>Track Your Order</MenuItem>
         <MenuItem onClick={props.logout}>Logout</MenuItem>
       </Menu>
@@ -97,7 +102,7 @@ const StyledBadge = withStyles(theme => ({
 }))(Badge);
 
 function HideOnScroll(props) {
-  const { children, window, viewOpenState } = props;
+  const { children, viewOpenState } = props;
   // Note that you normally won't need to set the window ref as useScrollTrigger
   // will default to window.
   // This is only being set here because the demo is in an iframe.
@@ -120,13 +125,12 @@ HideOnScroll.propTypes = {
    * Injected by the documentation to work in an iframe.
    * You won't need it on your project.
    */
-  window: PropTypes.func,
-};
+  };
 
 
 
 function HideOnScrollBottom(props) {
-  const { children, window, viewOpenState } = props;
+  const { children, viewOpenState } = props;
   // Note that you normally won't need to set the window ref as useScrollTrigger
   // will default to window.
   // This is only being set here because the demo is in an iframe.
@@ -149,7 +153,6 @@ HideOnScrollBottom.propTypes = {
    * Injected by the documentation to work in an iframe.
    * You won't need it on your project.
    */
-  window: PropTypes.func,
 };
 
 const useStylesBottomNav = makeStyles({
@@ -157,9 +160,29 @@ const useStylesBottomNav = makeStyles({
     width: '100vw',
     position:'fixed',
     bottom:-5,
-
   },
-});
+  selected: {
+    fontSize:'18px !important',
+  }
+  });
+
+
+
+  function TieIcon() {
+  
+    React.useEffect(() => {
+      loadCSS(
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css',
+        document.querySelector('#font-awesome-css'),
+      );
+    }, []);
+  
+    return (
+      <div>
+        <Icon className="fab fa-black-tie" />
+      </div>
+    );
+  }
 
 function SimpleBottomNavigation({location, ...props}) {
   const classes = useStylesBottomNav();
@@ -176,9 +199,11 @@ function SimpleBottomNavigation({location, ...props}) {
       showLabels
       className={classes.root}
     >
-      <BottomNavigationAction containerelement={<Link to="/tie"></Link>} label="Recents" icon={<RestoreIcon />} />
-      <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
-      <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
+      <BottomNavigationAction component={Link} to="/" label="Home"  classes={{ selected: classes.selected }} icon={<HomeIcon />} />
+      <BottomNavigationAction component={Link} to="/about" label="About"  classes={{ selected: classes.selected }}  icon={<FavoriteIcon />} />
+      <BottomNavigationAction component={Link} to="/tie" label="Your Tie"  classes={{ selected: classes.selected }} icon={<TieIcon />} />
+      <BottomNavigationAction component={Link} to="/contact" label="Contact"   classes={{ selected: classes.selected }}
+  icon={<ContactSupportOutlined />} />
     </BottomNavigation>
     </HideOnScrollBottom>
         </React.Fragment>

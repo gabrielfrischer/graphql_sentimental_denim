@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { render } from "react-dom";
 import Gallery from "react-photo-gallery";
 import Carousel, { Modal, ModalGateway } from "react-images";
-
+import './assets/gallery.css'
 export default function Home(props) {
   const [currentImage, setCurrentImage] = useState(0);
   const [viewerIsOpen, setViewerIsOpen] = useState(false);
@@ -30,7 +29,7 @@ useEffect(() => {
 
 
 
-``
+
   function styleFn(base, state) {
   // optionally spread base styles
   return { ...base, color: state.isModal ? 'blue' : 'red' };
@@ -48,7 +47,7 @@ useEffect(() => {
     setCurrentImage(0);
     setViewerIsOpen(false);
   };
-  if(props.images===undefined && photos.length==0){
+  if(props.images===undefined && photos.length===0){
         return <h1>Loading...</h1>
     }
 
@@ -60,8 +59,9 @@ useEffect(() => {
       <Gallery photos={photos} onClick={openLightbox} />
       <ModalGateway>
         {viewerIsOpen ? (
-          <Modal onClose={closeLightbox} style={{height:'400px'}}>
-            <Carousel
+          <Modal onClose={closeLightbox} >
+            <Carousel 
+
               currentIndex={currentImage}
               views={photos.map(x => ({
                 ...x,

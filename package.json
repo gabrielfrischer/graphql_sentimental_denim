@@ -7,6 +7,7 @@
     "@material-ui/icons": "^4.2.1",
     "babel-plugin-graphql-js-client-transform": "^1.1.0",
     "classnames": "^2.2.6",
+    "fg-loadcss": "^2.1.0",
     "graphql-js-client": "^0.6.2",
     "react": "16.9",
     "react-dom": "16.9",
