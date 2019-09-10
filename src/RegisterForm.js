@@ -75,18 +75,17 @@ export default function RegisterSlide(props) {
     setValues({ ...values, [prop]: event.target.value })
     console.log(values)
 
-    checkMatch()
    
     
   };
 
 
   const checkMatch = () => {
-        if(values.password == values.repeatPassword){
-      setMatch((prevState)=>{return false})
+        if(values.password === values.repeatPassword){
+      setMatch(false)
     }
     else{
-      setMatch((prevState)=>{return true})
+      setMatch(true)
     }
 
   };
@@ -300,7 +299,7 @@ function handleCloseTransition(){
           </Button>
 
           {console.log("Login Form Values: ", values)}
-          <Button onClick={() => { props.registerHandle(values.email, values.password); handleClickQuery();}} disabled={passwordsMatch || values.password.length===0} color="primary">
+          <Button onClick={() => { props.registerHandle(values.email, values.password); handleClickQuery();}} disabled={passwordsMatch || values.password.length===0 || values.email.length<3} color="primary">
             Sign Up
           </Button>
         </DialogActions>
