@@ -252,7 +252,7 @@ function handleCloseTransition(){
           placeholder="Password *"
           fullWidth
           error={passwordsMatch}
-          requigit={true}
+          required={true}
           type={values.showPassword ? 'text' : 'password'}
           value={values.password}
           onChange={handleChange('password')}

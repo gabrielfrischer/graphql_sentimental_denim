@@ -10,7 +10,6 @@ class Products extends Component {
           checkout={this.props.checkout}
           key={product.id.toString()}
           product={product}
-          updateQuantity={this.props.updateQuantity}
         />
       );
     });

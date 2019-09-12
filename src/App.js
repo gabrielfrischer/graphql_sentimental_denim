@@ -200,8 +200,8 @@ function SimpleBottomNavigation({location, ...props}) {
       className={classes.root}
     >
       <BottomNavigationAction component={Link} to="/" label="Home"  classes={{ selected: classes.selected }} icon={<HomeIcon />} />
-      <BottomNavigationAction component={Link} to="/about" label="About"  classes={{ selected: classes.selected }}  icon={<FavoriteIcon />} />
       <BottomNavigationAction component={Link} to="/tie" label="Your Tie"  classes={{ selected: classes.selected }} icon={<TieIcon />} />
+      <BottomNavigationAction component={Link} to="/about" label="About"  classes={{ selected: classes.selected }}  icon={<FavoriteIcon />} />
       <BottomNavigationAction component={Link} to="/contact" label="Contact"   classes={{ selected: classes.selected }}
   icon={<ContactSupportOutlined />} />
     </BottomNavigation>
@@ -271,7 +271,6 @@ class App extends Component {
     this.handleCartClose = this.handleCartClose.bind(this);
     this.addVariantToCart = this.addVariantToCart.bind(this);
     this.updateQuantityInCart = this.updateQuantityInCart.bind(this);
-    this.UpdateQuantity = this.UpdateQuantity.bind(this);
     this.removeLineItemInCart = this.removeLineItemInCart.bind(this);
     this.login = this.login.bind(this)
     this.logout = this.logout.bind(this)
@@ -284,13 +283,11 @@ class App extends Component {
 
   componentWillMount() {
     const client = this.props.client;
-   
 
-  
- 
+
+
+
     
-      
-
     client.send(gql(client)`
       mutation {
         checkoutCreate(input: {}) {
@@ -409,15 +406,21 @@ this.setState({viewOpen:viewerOpen})
 }
 
 UpdateQuantity(){
- if(this.state.checkout.lineItems[0] !== undefined){
-          this.setState({quantity:this.state.checkout.lineItems[0].quantity}) 
-          console.log("Quantity: ", this.state.quantity)
-      }
-      else{
-        this.setState({quantity:this.state.checkout.lineItems[0].quantity})
-        console.log("Nothing in cart")
-      }    
-}
+  
+  if(this.state.checkout.lineItems[0] !== undefined){
+           this.setState({quantity:this.state.checkout.lineItems[0].quantity}) 
+           console.log("Quantity: ", this.state.quantity)
+       }
+       else{
+         console.log("Nothing in cart")
+       }    
+ }
+
+
+
+
+
+
     
 validator(){
   console.log('Validator Here')
@@ -477,8 +480,6 @@ logout(){
 
 
 login(loginEmail, loginPassword){
-
-
 
 const input = {"input": {"email":loginEmail, "password": loginPassword} }
 
@@ -624,7 +625,9 @@ catch(error) {
     `, {checkoutId, lineItems}).then(res => {
       this.setState({
         checkout: res.model.checkoutLineItemsAdd.checkout,
+        quantity: res.model.checkoutLineItemsAdd.checkout.lineItems[0].quantity,
       });
+      
       
     });
   }
@@ -632,7 +635,7 @@ catch(error) {
   updateQuantityInCart(lineItemId, quantity) {
     const checkoutId = this.state.checkout.id
     const lineItems = [{id: lineItemId, quantity: parseInt(quantity, 10)}]
-
+    
     return this.props.client.send(gql(this.props.client)`
       mutation ($checkoutId: ID!, $lineItems: [CheckoutLineItemUpdateInput!]!) {
         checkoutLineItemsUpdate(checkoutId: $checkoutId, lineItems: $lineItems) {
@@ -668,10 +671,11 @@ catch(error) {
         }
       }
     `, {checkoutId, lineItems}).then(res => {
+   
       this.setState({
         checkout: res.model.checkoutLineItemsUpdate.checkout,
-        
       });
+     
 
     });
   }
@@ -721,21 +725,14 @@ catch(error) {
 
   }
 
+
+
   handleCartClose() {
     this.setState({
       isCartOpen: false,
     });
   }
 
-  countItems(){
-  }
-
-  componentDidMount() {
-
-  }
-
-
-  
 
   render() {
     return (
@@ -744,15 +741,8 @@ catch(error) {
       <div className="App">
 <CustomizedSnackbars authenticated={this.state.authenticated} signedUp={this.state.signedUp} noInternetCheckout={this.state.noInternetCheckout} noInternetShop={this.state.noInternetShop}  />
 <HideAppBar shopName={this.state.shop.name} viewOpenState={this.state.viewOpen} loginHandle={this.login} registerHandle={this.register} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} unmountSignup={this.state.unmountSignup} signedUp={this.state.signedUp} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
-        <header className="App__header">
-         
-         
-            <Link to="/">Home</Link>
-            <Link to="/login" onClick={this.validateAuthentication}
->Login</Link>
-          
-        </header>
-        <RouterContainer products={this.state.products} addVariantToCart={this.addVariantToCart} viewOpen={this.SlideToggle} viewOpenState={this.state.viewOpen} quantity={this.UpdateQuantity}
+        
+        <RouterContainer products={this.state.products} addVariantToCart={this.addVariantToCart} viewOpen={this.SlideToggle} viewOpenState={this.state.viewOpen}
            />
         <Cart
           loadingCheckout={this.state.loadingCheckout}
