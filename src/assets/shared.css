@@ -352,6 +352,19 @@ h2 {
   margin-bottom: 3%;
 }
 
+.Product img {
+  margin:0 auto;
+  height:50vh;
+}
+
+@media (max-width: 320px) { 
+  .Product img {
+    margin:0 auto;
+    height:40vh;
+  }
+}
+
+
 .Product__title {
   font-size: 1.3rem;
   margin-top: 1rem;

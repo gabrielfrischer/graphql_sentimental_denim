@@ -160,7 +160,7 @@ const useStylesBottomNav = makeStyles({
     bottom:-5,
   },
   selected: {
-    fontSize:'18px !important',
+    fontSize:'15px !important',
   }
   });
 
