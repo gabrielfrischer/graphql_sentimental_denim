@@ -9,7 +9,7 @@ export const client = new Client(typeBundle, {
   url: 'https://sentimental-denim.myshopify.com/api/graphql',
   fetcherOptions: {
     headers: {
-      'X-Shopify-Storefront-Access-Token': process.env.REACT_APP_SHOPIFY_STOREFRONT_API_KEY
+      'X-Shopify-Storefront-Access-Token': '9563e8cb7fb3f7105af13c789b15aa9c'
     }
   }
 });

@@ -20,6 +20,10 @@ import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
+import { green, red } from '@material-ui/core/colors';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 
 /* import {gql} from 'babel-plugin-graphql-js-client-transform';
 import client from './index' */
@@ -27,6 +31,15 @@ import client from './index' */
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
+});
+
+const styles = theme => ({
+  textFieldError:{
+    color:red
+  },
+  textFieldSuccess:{
+    color:green
+  }
 });
 
 const useStyles = makeStyles(theme => ({
@@ -44,17 +57,24 @@ const useStyles = makeStyles(theme => ({
   formControl: {
     width:'100%'
   },
+  textFieldError:{
+    color:red
+  },
+  textFieldSuccess:{
+    color:green
+  }
 }));
 
 
 
-export default function RegisterSlide(props) {
+ function RegisterSlide(props) {
   const classes = useStyles();
   const [query, setQuery] = useState('idle');
   const timerRef = React.useRef();
   const [open, setOpen] = useState(false);
   const [loadedcAT, setcAT] = useState(props.loadedcAT)
   const [signedUp, setAuth] = useState(props.signedUp)
+  const [signUpError,setsignUpError] = useState(props.signUpError)
   const [passwordsMatch, setMatch] = useState(false)
   const [passwordLength, setLength ] = useState(0)
 
@@ -66,7 +86,7 @@ export default function RegisterSlide(props) {
   });
 
 
-  
+
 
 
 
@@ -108,6 +128,12 @@ export default function RegisterSlide(props) {
     [values.repeatPassword],
   );
 
+  useEffect(
+    () => {
+      console.log('signUpError',signUpError)
+    },
+    [signUpError],
+  );
 
   useEffect(
     () => () => {
@@ -208,18 +234,24 @@ function handleCloseTransition(){
         <DialogTitle id="alert-dialog-slide-title">{"Sign Up for Sentimental Denim"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-          Enter your email and create a password below to create an account.
+          Enter your email and create a password below to create an account.<br/>
           </DialogContentText>
 
            <div className={classes.root}>
       <div className={classes.placeholder}>
       
         {props.signedUp === true && query === 'success' ? (
-          <Typography>Success! {handleCloseTransition()}</Typography>
-        ) : props.signedUp === false && query === 'success' ? (
-                  <Typography>Invalid Credentials, check your password or click 'Forgot Password'?</Typography>
+          <Typography className={classes.textFieldSuccess} >Success! {handleCloseTransition()}</Typography>
+        ) : props.signedUp === null && query === 'success' && props.signUpError !=='' ? (
+          <FormControl className={classes.formControl}>
 
-        ) : (
+          <Typography
+          className={classes.textFieldError}
+          >
+            {props.signUpError}
+        </Typography>
+      </FormControl>                  
+        ) :  (
            <Fade
             in={query === 'progress'}
             style={{
@@ -268,7 +300,7 @@ function handleCloseTransition(){
             </InputAdornment>
           }
         />
-        <FormHelperText></FormHelperText>
+        
         </FormControl>
         <OutlinedInput
           id="adornment-password"
@@ -307,3 +339,6 @@ function handleCloseTransition(){
     </div>
   );
 }
+
+
+export default withStyles(styles)(RegisterSlide);

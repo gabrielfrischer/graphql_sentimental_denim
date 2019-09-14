@@ -11,6 +11,7 @@ import {
 import './assets/transition.css'
 import Products from './components/Products';
 import Home from './Home';
+import Profile from './Profile'
 
 
 
@@ -30,6 +31,11 @@ function RouterContainer({ location, ...rest }) {
               <Route exact path="/" render={(props)=><Home images={rest.products[0]} slideToggle={rest.viewOpen} viewOpenState={rest.viewOpenState}/> }/>
               <Route path="/tie" render={(props)=><Products products={rest.products} updateQuantity={rest.quantity} addVariantToCart={rest.addVariantToCart} images={rest.products[0]}/> }/>
               <Route path="/login" render={()=><h1>Login</h1>} />
+
+            {rest.authenticated ? <Route exact path="/Profile" render={(props)=><Profile orderInfo={rest.orderInfo}/> }/> : null}
+
+              <Route render={()=><h1>No Page Found</h1>} />
+
             </Switch>
           </section>
         </CSSTransition>

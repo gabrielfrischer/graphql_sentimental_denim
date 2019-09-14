@@ -2,7 +2,30 @@ import React, { useState, useCallback, useEffect } from "react";
 import Gallery from "react-photo-gallery";
 import Carousel, { Modal, ModalGateway } from "react-images";
 import './assets/gallery.css'
+import { makeStyles } from '@material-ui/core/styles';
+import {Typography} from '@material-ui/core'
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  button: {
+    margin: theme.spacing(2),
+  },
+  placeholder: {
+    height: 40,
+  },
+  headingHome:{
+    textAlign:'center'
+  }
+}));
+
+
 export default function Home(props) {
+  const classes = useStyles()
+
   const [currentImage, setCurrentImage] = useState(0);
   const [viewerIsOpen, setViewerIsOpen] = useState(false);
     console.log("Photos: ", props)
@@ -30,11 +53,6 @@ useEffect(() => {
 
 
 
-  function styleFn(base, state) {
-  // optionally spread base styles
-  return { ...base, color: state.isModal ? 'blue' : 'red' };
-}
-
  
 
   const openLightbox = useCallback((event, { photo, index }) => {
@@ -56,6 +74,7 @@ useEffect(() => {
 
     <div>
     {    makegrid()}
+    <Typography variant="h1" className={classes.headingHome}>Welcome to Sentimental Denim</Typography>
       <Gallery photos={photos} onClick={openLightbox} />
       <ModalGateway>
         {viewerIsOpen ? (

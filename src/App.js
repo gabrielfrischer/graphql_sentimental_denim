@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Link, NavLink } from "react-router-dom";
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import RouterContainer from './RouterContainer'
@@ -32,7 +32,8 @@ import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import clsx from 'clsx';
 import { loadCSS } from 'fg-loadcss';
 import Icon from '@material-ui/core/Icon';
-
+import Client from 'graphql-js-client';
+import typeBundle from './types';
 
 
 
@@ -70,7 +71,7 @@ function SimpleMenu(props) {
     <div>
         <Slide direction="down" in={props.unmountLogin} >
       <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} color="inherit">
-        Profile <ProfileOutline />
+        Account <ProfileOutline />
       </Button>
       </Slide>
  
@@ -82,7 +83,7 @@ function SimpleMenu(props) {
         onClose={handleClose}
       >
         <MenuItem onClick={handleClose} component={Link} to="/profile">Profile</MenuItem>
-        <MenuItem onClick={handleClose}>Track Your Order</MenuItem>
+        <MenuItem onClick={handleClose} component={Link} to="/track">Track Your Order</MenuItem>
         <MenuItem onClick={props.logout}>Logout</MenuItem>
       </Menu>
     </div>
@@ -170,7 +171,7 @@ const useStylesBottomNav = makeStyles({
 
   function TieIcon() {
   
-    React.useEffect(() => {
+    useEffect(() => {
       loadCSS(
         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css',
         document.querySelector('#font-awesome-css'),
@@ -200,7 +201,7 @@ function SimpleBottomNavigation({location, ...props}) {
       className={classes.root}
     >
       <BottomNavigationAction component={Link} to="/" label="Home"  classes={{ selected: classes.selected }} icon={<HomeIcon />} />
-      <BottomNavigationAction component={Link} to="/tie" label="Your Tie"  classes={{ selected: classes.selected }} icon={<TieIcon />} />
+      <BottomNavigationAction component={Link} to="/tie" label="The Tie"  classes={{ selected: classes.selected }} icon={<TieIcon />} />
       <BottomNavigationAction component={Link} to="/about" label="About"  classes={{ selected: classes.selected }}  icon={<FavoriteIcon />} />
       <BottomNavigationAction component={Link} to="/contact" label="Contact"   classes={{ selected: classes.selected }}
   icon={<ContactSupportOutlined />} />
@@ -214,7 +215,15 @@ function HideAppBar(props) {
     const classes = useStyles();
     const [cartState, cartOpen] = useState(false)
     console.log("Cart State: ", cartState)
+    const [signUpError,setsignUpError] = useState(props.signUpError)
 
+    useEffect(
+      () => {
+        console.log('signUpError',signUpError)
+      },
+      [signUpError],
+    );
+    
   return (
     <React.Fragment>
       <CssBaseline />
@@ -224,7 +233,7 @@ function HideAppBar(props) {
             <Typography variant="h6" className={classes.title}>{props.shopName}</Typography>
             {console.log('UserFirstName',props.userFirstName)}
   {props.unmountLogin ?  <SimpleMenu logout={props.logout} unmountLogin={props.unmountLogin} />: <LoginSlide loginHandle={props.loginHandle} loadedcAT={props.loadedcAT} authenticated={props.authenticated} key={1} />}
-    {props.unmountSignup || props.unmountLogin ? null :  <RegisterSlide registerHandle={props.registerHandle} signedUp={props.signedUp} key={2} />}
+    {props.unmountSignup || props.unmountLogin ? null :  <RegisterSlide registerHandle={props.registerHandle}  signedUp={props.signedUp} signUpError={props.signUpError} key={2} />}
 
       <IconButton aria-label="cart" color="inherit" onClick={props.openCart}>
       <StyledBadge badgeContent={props.itemCount} >
@@ -266,6 +275,7 @@ class App extends Component {
       noInternetCheckout:'',
       noInternetShop:'',
       viewOpen:false,
+      signUpError:''
     };
 
     this.handleCartClose = this.handleCartClose.bind(this);
@@ -281,14 +291,51 @@ class App extends Component {
 
 
 
-  componentWillMount() {
-    const client = this.props.client;
+  UNSAFE_componentWillMount() {
 
-
-
-
+    const input = this.state.customerAccessToken
+  
+    console.log("CustomerOrderObject:", JSON.stringify(input))
+  try{
+    this.props.client.send(gql(this.props.client)`
+      query {
+        customer(customerAccessToken: $input) {
+          orders(first: 5) {
+            edges {
+              node {
+                lineItems(first: 5) {
+                  edges {
+                    node {
+                      quantity
+                      title
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+          `,{...input}).then(res => {
+          
+              console.log("Orders: ",res)
     
-    client.send(gql(client)`
+            
+            
+    
+        // expected output: ReferenceError: nonExistentFunction is not defined
+        // Note - error messages will vary depending on browser
+      
+                  
+      
+          });
+        }
+        catch(e){
+          console.log(e)
+        }
+    
+    try{
+          this.props.client.send(gql(this.props.client)`
       mutation {
         checkoutCreate(input: {}) {
           userErrors {
@@ -332,8 +379,13 @@ class App extends Component {
       this.setState({noInternetCheckout:'You are not connected to the Internet.'})
       console.log('No Internet Message: ',this.state.noInternet)
     } );
-
-    client.send(gql(client)`
+    }
+    catch(e){
+      console.log(e)
+    }
+  
+    try{
+    this.props.client.send(gql(this.props.client)`
       query {
         shop {
           name
@@ -398,6 +450,14 @@ class App extends Component {
       console.log("Could not fetch products from internet. Hey")
     })
   }
+  catch(e){
+    console.log(e)
+  }
+
+
+  }
+
+  
 
 
 SlideToggle(viewerOpen){
@@ -479,12 +539,52 @@ logout(){
 }
 
 
+customerOrder(CID){
+
+
+  
+  
+  this.props.client.send(gql(this.props.client)`
+  {
+    customer(id: "gid://shopify/Customer/98495135746") {
+      lastOrder {
+        lineItems(first: 5) {
+          edges {
+            node {
+              name
+              quantity
+            }
+          }
+        }
+      }
+    }
+  }
+      `,{CID}).then(res=> {
+       
+          console.log("Orders: ",res)
+
+        
+        
+
+    // expected output: ReferenceError: nonExistentFunction is not defined
+    // Note - error messages will vary depending on browser
+  
+              
+  
+      });
+  
+}
+
+
+
+
+
 login(loginEmail, loginPassword){
 
 const input = {"input": {"email":loginEmail, "password": loginPassword} }
 
 console.log("LoginInputObject:", JSON.stringify(input))
-
+try{
 this.props.client.send(gql(this.props.client)`
       mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
   customerAccessTokenCreate(input: $input) {
@@ -496,12 +596,13 @@ this.props.client.send(gql(this.props.client)`
       accessToken
       expiresAt
     }
+    
   }
 }
     `,{...input}).then(res => {
       this.validator()
       console.log("Res: ",res)
-      try {
+      
       this.setState({
         customerAccessToken: res.data.customerAccessTokenCreate.customerAccessToken.accessToken,
         customerAccessTokenExpire: res.data.customerAccessTokenCreate.customerAccessToken.expiresAt,
@@ -512,15 +613,12 @@ this.props.client.send(gql(this.props.client)`
       })
       this.validator()
       this.unmountLogin()
-      }
-catch(error) {
-  console.error(error);
+      
+
   // expected output: ReferenceError: nonExistentFunction is not defined
   // Note - error messages will vary depending on browser
-}
 
-      
-      
+            
 
       console.log('Authenticated? : ', this.state.authenticated)
       console.log('LoadedcAT? : ', this.state.loadedcAT)
@@ -530,8 +628,16 @@ catch(error) {
       console.log("Local Storage cAT: ", localStorage.getItem('cAT'))
             console.log("CustomerAccessToken: ",this.state.customerAccessToken, this.state.customerAccessTokenExpire)
     });
+  }
+  catch(e){
+    console.log(e)
+  }
 
   }
+
+
+
+
 
 
   register(loginEmail, loginPassword){
@@ -541,7 +647,7 @@ catch(error) {
 const input = {"input": {"email":loginEmail, "password": loginPassword} }
 
 console.log("RegisterInputObject:", JSON.stringify(input))
-
+try{
 this.props.client.send(gql(this.props.client)`
      mutation customerCreate($input: CustomerCreateInput!) {
   customerCreate(input: $input) {
@@ -554,31 +660,42 @@ this.props.client.send(gql(this.props.client)`
     }
   }
 }
+
     `,{...input}).then(res => {
       this.registerValidator()
-      console.log("Res: ",res)
-      try {
+      console.log("Res customer: ",res)
+ 
       this.setState({
         customerID: res.data.customerCreate.customer.id,
+      }, ()=>{
+        localStorage.setItem('CID', this.state.customerID)
+        console.log('localStorage customerID: ', localStorage.getItem('CID'))
       });
       this.setState({
         signedUp:this.registerValidator()
       })
       this.registerValidator()
       this.unmountSignup()
-      }
-catch(error) {
-  console.error(error);
+      
+      
+      
+
+  this.setState({
+    signUpError:res.data.customerCreate.userErrors[0].message
+  })
+  console.log('Sign Up Error', this.state.signUpError)
   // expected output: ReferenceError: nonExistentFunction is not defined
   // Note - error messages will vary depending on browser
-}
 
     
     });
-
+  }
+  catch(e){
+    console.log(e)
+  }
   }
   
-
+ 
 
   addVariantToCart(variantId, quantity){
     this.setState({
@@ -588,7 +705,7 @@ catch(error) {
     const lineItems = [{variantId, quantity: parseInt(quantity, 10)}]
     const checkoutId = this.state.checkout.id
 
-    return this.props.client.send(gql(this.props.client)`
+    this.props.client.send(gql(this.props.client)`
       mutation ($checkoutId: ID!, $lineItems: [CheckoutLineItemInput!]!) {
         checkoutLineItemsAdd(checkoutId: $checkoutId, lineItems: $lineItems) {
           userErrors {
@@ -636,7 +753,7 @@ catch(error) {
     const checkoutId = this.state.checkout.id
     const lineItems = [{id: lineItemId, quantity: parseInt(quantity, 10)}]
     
-    return this.props.client.send(gql(this.props.client)`
+    this.props.client.send(gql(this.props.client)`
       mutation ($checkoutId: ID!, $lineItems: [CheckoutLineItemUpdateInput!]!) {
         checkoutLineItemsUpdate(checkoutId: $checkoutId, lineItems: $lineItems) {
           userErrors {
@@ -683,7 +800,7 @@ catch(error) {
   removeLineItemInCart(lineItemId) {
     const checkoutId = this.state.checkout.id;
 
-    return this.props.client.send(gql(this.props.client)`
+    this.props.client.send(gql(this.props.client)`
       mutation ($checkoutId: ID!, $lineItemIds: [ID!]!) {
         checkoutLineItemsRemove(checkoutId: $checkoutId, lineItemIds: $lineItemIds) {
           userErrors {
@@ -740,9 +857,9 @@ catch(error) {
 <Router>
       <div className="App">
 <CustomizedSnackbars authenticated={this.state.authenticated} signedUp={this.state.signedUp} noInternetCheckout={this.state.noInternetCheckout} noInternetShop={this.state.noInternetShop}  />
-<HideAppBar shopName={this.state.shop.name} viewOpenState={this.state.viewOpen} loginHandle={this.login} registerHandle={this.register} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} unmountSignup={this.state.unmountSignup} signedUp={this.state.signedUp} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity}/> 
+<HideAppBar shopName={this.state.shop.name} viewOpenState={this.state.viewOpen} loginHandle={this.login} registerHandle={this.register} loadedcAT={this.state.loadedcAT} authenticated={this.state.authenticated} unmountSignup={this.state.unmountSignup} signedUp={this.state.signedUp} userFirstName={'Hello Gabriel'} logout={this.logout} unmountLogin={this.state.unmountLogin} openCart={()=>this.setState({isCartOpen:true})} itemCount={this.state.quantity} signUpError={this.state.signUpError}/> 
         
-        <RouterContainer products={this.state.products} addVariantToCart={this.addVariantToCart} viewOpen={this.SlideToggle} viewOpenState={this.state.viewOpen}
+        <RouterContainer products={this.state.products}  addVariantToCart={this.addVariantToCart} authenticated={this.state.authenticated} viewOpen={this.SlideToggle} viewOpenState={this.state.viewOpen} orderInfo={this.customerOrder}
            />
         <Cart
           loadingCheckout={this.state.loadingCheckout}
