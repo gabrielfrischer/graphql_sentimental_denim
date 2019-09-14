@@ -16,7 +16,6 @@ import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import IconButton from '@material-ui/core/IconButton';
-import Container from '@material-ui/core/Container';
 import Slide from '@material-ui/core/Slide';
 import LoginSlide from './LoginForm';
 import Button from '@material-ui/core/Button';
@@ -29,11 +28,9 @@ import HomeIcon from '@material-ui/icons/Home';
 import RestoreIcon from '@material-ui/icons/Restore';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
-import clsx from 'clsx';
 import { loadCSS } from 'fg-loadcss';
 import Icon from '@material-ui/core/Icon';
-import Client from 'graphql-js-client';
-import typeBundle from './types';
+
 
 
 
